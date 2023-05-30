@@ -1,0 +1,28 @@
+import {ramp} from "@mbostock/color-ramp"
+topojson = require("topojson-client@3")
+us = d3.json("https://cdn.jsdelivr.net/npm/us-atlas@1/us/10m.json")
+color = d3.scaleDivergingSqrt([-1,0,1], t => d3.interpolateRdBu(1-t))
+data = Object.assign(new Map(await d3.csv("https://raw.githubusercontent.com/yinjunjun/data/master/us_1314_twitter_IRS_inflow_rr.csv", ({GEOID, Index2}) => [GEOID, +Index2])), {title: "Representativeness Index"})
+legend = g => {
+  const width = 240;
+
+  g.append("image")
+      .attr("width", width)
+      .attr("height", 8)
+      .attr("preserveAspectRatio", "none")
+      .attr("xlink:href", ramp(color.interpolator()).toDataURL());
+
+  g.append("text")
+      .attr("class", "caption")
+      .attr("y", -6)
+      .attr("fill", "#000")
+      .attr("text-anchor", "start")
+      .attr("font-weight", "bold")
+      .text(data.title);
+
+  // g.call(d3.axisBottom(d3.scalePoint(["lowest", "median", "highest"], [0, width]))
+  g.call(d3.axisBottom(d3.scalePoint(["-1", "0", "1"], [0, width]))
+         .tickSize(13))
+    .select(".domain")
+      .remove();
+}
